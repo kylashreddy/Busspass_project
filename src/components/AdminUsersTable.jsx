@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 
 function AdminUsersTable({ roleFilter = "student", title }) {
   const [users, setUsers] = useState([]);
@@ -61,8 +61,17 @@ function AdminUsersTable({ roleFilter = "student", title }) {
       if (email === null) return;
       const role = prompt('Role (student/teacher/admin)', u.role || 'student');
       if (role === null) return;
-      await updateDoc(doc(db, 'users', u.id), { name, usn, email, role });
-      alert('✅ User updated');
+
+      if (role === 'teacher') {
+        // Move to staff collection and remove from users
+        const staffDoc = { name, usn, email, role: 'teacher', userId: u.id, createdAt: u.createdAt || new Date(), updatedAt: new Date() };
+        await setDoc(doc(db, 'staff', u.id), staffDoc, { merge: true });
+        await deleteDoc(doc(db, 'users', u.id));
+        alert('✅ Moved user to staff collection');
+      } else {
+        await updateDoc(doc(db, 'users', u.id), { name, usn, email, role });
+        alert('✅ User updated');
+      }
     } catch (err) {
       console.error('Update failed:', err);
       alert('Failed to update: ' + err.message);

@@ -29,6 +29,14 @@ function LoginForm({ onSwitchToRegister }) {
       if (userDocSnap.exists()) {
         profile = userDocSnap.data();
         role = profile.role;
+      } else {
+        // Try staff collection for teachers
+        const staffDocRef = doc(db, "staff", user.uid);
+        const staffDocSnap = await getDoc(staffDocRef);
+        if (staffDocSnap.exists()) {
+          profile = staffDocSnap.data();
+          role = profile.role || "teacher";
+        }
       }
 
       // Route by role; allow teacher to sign in and land on Home

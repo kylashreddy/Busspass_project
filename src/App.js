@@ -43,8 +43,16 @@ function App() {
           if (userDocSnap.exists()) {
             setUserRole(userDocSnap.data().role || "student"); // fallback
           } else {
-            // If no doc yet, assume student (SignUpForm writes one)
-            setUserRole("student");
+            // Try staff collection for teachers
+            const staffDocRef = doc(db, "staff", currentUser.uid);
+            const staffDocSnap = await getDoc(staffDocRef);
+            if (staffDocSnap.exists()) {
+              const role = staffDocSnap.data().role || "teacher";
+              setUserRole(role);
+            } else {
+              // If no doc yet, assume student (SignUpForm writes one)
+              setUserRole("student");
+            }
           }
 
 
