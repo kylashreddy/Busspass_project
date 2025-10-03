@@ -4,7 +4,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { logLoginEvent } from "../utils/logLoginEvent";
 
 function LoginForm({ onSwitchToRegister }) {
   const [email, setEmail] = useState("");
@@ -30,10 +29,15 @@ function LoginForm({ onSwitchToRegister }) {
       if (userDocSnap.exists()) {
         profile = userDocSnap.data();
         role = profile.role;
+      } else {
+        // Try staff collection for teachers
+        const staffDocRef = doc(db, "staff", user.uid);
+        const staffDocSnap = await getDoc(staffDocRef);
+        if (staffDocSnap.exists()) {
+          profile = staffDocSnap.data();
+          role = profile.role || "teacher";
+        }
       }
-
-      // Log successful login (guarded per session)
-      await logLoginEvent(db, user, profile);
 
       // Route by role; allow teacher to sign in and land on Home
       if (role === "student") {

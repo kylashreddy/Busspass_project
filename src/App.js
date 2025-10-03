@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { logLoginEvent } from "./utils/logLoginEvent";
 import { motion } from 'framer-motion';
 import AnimatedCursor from './components/AnimatedCursor';
 import TrackingPlaceholder from './components/TrackingPlaceholder';
@@ -20,7 +19,7 @@ import StudentBusPassView from './components/StudentBusPassView';
 import Navbar from "./components/Navbar";
 import ContactUs from "./components/ContactUs";
 import AdminUsersTable from './components/AdminUsersTable';
-import AdminLoginLogs from './components/AdminLoginLogs';
+import AdminStaffTable from './components/AdminStaffTable';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -44,17 +43,18 @@ function App() {
           if (userDocSnap.exists()) {
             setUserRole(userDocSnap.data().role || "student"); // fallback
           } else {
-            // If no doc yet, assume student (SignUpForm writes one)
-            setUserRole("student");
+            // Try staff collection for teachers
+            const staffDocRef = doc(db, "staff", currentUser.uid);
+            const staffDocSnap = await getDoc(staffDocRef);
+            if (staffDocSnap.exists()) {
+              const role = staffDocSnap.data().role || "teacher";
+              setUserRole(role);
+            } else {
+              // If no doc yet, assume student (SignUpForm writes one)
+              setUserRole("student");
+            }
           }
 
-          // Log login on session restore or external login (avoid duplicate if already logged via LoginForm)
-          try {
-            const profile = userDocSnap.exists() ? userDocSnap.data() : null;
-            await logLoginEvent(db, currentUser, profile);
-          } catch (logErr) {
-            console.warn("Login log (App) failed:", logErr);
-          }
 
           // Only check passes for students
           if (userDocSnap.exists() && userDocSnap.data().role === "student") {
@@ -244,16 +244,15 @@ function App() {
                   </motion.div>
                 }
               />
-
-              {/* Login log */}
               <Route
-                path="/admin/logins"
+                path="/admin/users/staff"
                 element={
                   <motion.div className="page-content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: 'easeOut' }}>
-                    <AdminLoginLogs />
+                    <AdminStaffTable />
                   </motion.div>
                 }
               />
+
 
               {/* Complaints page */}
               <Route
