@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
-function AdminUsersTable({ roleFilter = "student" }) {
+function AdminUsersTable({ roleFilter = "student", title }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ function AdminUsersTable({ roleFilter = "student" }) {
   if (loading) return <p>Loading {roleFilter === 'teacher' ? 'teachers' : 'students'}...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
-  const label = roleFilter === 'teacher' ? 'Teachers' : roleFilter === 'student' ? 'Students' : 'Users';
+  const computedLabel = title || (roleFilter === 'teacher' ? 'Teachers' : roleFilter === 'student' ? 'Students' : 'Users');
 
   const onEdit = async (u) => {
     try {
@@ -82,11 +82,11 @@ function AdminUsersTable({ roleFilter = "student" }) {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 6 }}>👥 {label}</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: 6 }}>👥 {computedLabel}</h2>
       <p style={{ textAlign: 'center', color: '#6b7280', marginTop: 0 }}>Total: {users.length}</p>
 
       {users.length === 0 ? (
-        <p>No {label.toLowerCase()} found.</p>
+        <p>No {computedLabel.toLowerCase()} found.</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>

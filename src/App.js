@@ -20,6 +20,7 @@ import StudentBusPassView from './components/StudentBusPassView';
 import Navbar from "./components/Navbar";
 import ContactUs from "./components/ContactUs";
 import AdminUsersTable from './components/AdminUsersTable';
+import AdminStaffTable from './components/AdminStaffTable';
 import AdminLoginLogs from './components/AdminLoginLogs';
 
 function App() {
@@ -241,6 +242,14 @@ function App() {
                 element={
                   <motion.div className="page-content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: 'easeOut' }}>
                     <AdminUsersTable roleFilter="teacher" />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/admin/users/staff"
+                element={
+                  <motion.div className="page-content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: 'easeOut' }}>
+                    <AdminStaffTable />
                   </motion.div>
                 }
               />
