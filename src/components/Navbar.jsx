@@ -47,9 +47,6 @@ function Navbar({ user, userRole, handleLogout, hasApprovedPass }) {
         <Link to="/admin/users/staff" style={navLinkStyle}>Staff</Link>
       </li>
       <li>
-        <Link to="/admin/logins" style={navLinkStyle}>Login Log</Link>
-      </li>
-      <li>
         <Link to="/admin/complaints" style={navLinkStyle}>Complaints</Link>
       </li>
     </>
